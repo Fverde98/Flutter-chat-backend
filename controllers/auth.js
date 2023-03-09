@@ -4,9 +4,9 @@ const bcrypt = require('bcryptjs');
 
 const Usuario = require('../models/usuario');
 const { generarJWT } = require('../helpers/jwt');
+const usuario = require('../models/usuario');
 
 const crearUsuario = async (req, res = response ) => {
-
     const { email, password } = req.body;
 
     try {
@@ -22,7 +22,7 @@ const crearUsuario = async (req, res = response ) => {
         const usuario = new Usuario( req.body );
 
         // Encriptar contraseña
-        const salt = bcrypt.genSaltSync(10);
+        const salt = bcrypt.genSaltSync();
         usuario.password = bcrypt.hashSync( password, salt );
 
         await usuario.save();
@@ -93,22 +93,25 @@ const login = async ( req, res = response ) => {
 
 const renewToken = async( req, res = response) => {
 
-     const uid = req.uid;
+    const uid = req.uid;
 
-//     // generar un nuevo JWT, generarJWT... uid...
-     const token = await generarJWT( uid );
+    // generar un nuevo JWT, generarJWT... uid...
+    const token = await generarJWT( uid );
 
-//     // Obtener el usuario por el UID, Usuario.findById... 
+    // Obtener el usuario por el UID, Usuario.findById... 
     const usuario = await Usuario.findById( uid );
 
     res.json({
         ok: true,
-       usuario,
-       token
-       
+        usuario,
+        token
     });
+
 }
 
+
 module.exports = {
-    crearUsuario,login,renewToken
+    crearUsuario,
+    login,
+    renewToken
 }
